@@ -22,12 +22,12 @@ apiv1.post('/', function(req, res) {
     });
 
     // Save object to DB
-    report.save(report).then(data => {
+    report.save(report)
+    .then(data => {
         res.send(data);
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "An error occured while saving the report to the database."
-        });
+    })
+    .catch(err => {
+        res.status(500).send({ "An error occured while saving the report to the database. " + err });
     });
 });
 
@@ -41,9 +41,7 @@ apiv1.get('/', function(req, res) {
         res.send(data);
     })
     .catch(err => {
-        res.status(500).send({
-            message: err.message || "An error occurred while retrieving reports."
-        });
+        res.status(500).send({ "An error occurred while retrieving reports. " + err });
     });
 });
 
@@ -60,8 +58,28 @@ apiv1.get('/:id', function(req, res) {
         }
     })
     .catch(err => {
-        res.status(500).send({ message: "Error retrieving report with id " + id + "."});
+        res.status(500).send({ message: "Error retrieving report with id " + id + ". " + err });
     });
+});
+
+// Update report by ID (PUT /api/v1/:id)
+apiv1.put('/:id', function(req, res) {
+    if (!req.body) {
+        return res.status(400).send({ message: "Data to update cannot be empty." });
+    }
+    const id = req.params.id;
+    
+    report.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+        .then(data => {
+            if (!data) {
+                res.status(404).send({ message: `Could not find a report with id ${id}.` });
+            } else {
+                res.send({ message: "Report was updated successfully." });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({ message: "Unknown error updating report with id " + id + ". " + err });
+        });
 });
 
 module.exports = apiv1;
