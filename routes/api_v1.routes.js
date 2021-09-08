@@ -27,7 +27,7 @@ apiv1.post('/', function(req, res) {
         res.send(data);
     })
     .catch(err => {
-        res.status(500).send({ "An error occured while saving the report to the database. " + err });
+        res.status(500).send({ message: "An error occured while saving the report to the database. " + err });
     });
 });
 
@@ -41,7 +41,7 @@ apiv1.get('/', function(req, res) {
         res.send(data);
     })
     .catch(err => {
-        res.status(500).send({ "An error occurred while retrieving reports. " + err });
+        res.status(500).send({ message: "An error occurred while retrieving reports. " + err });
     });
 });
 
