@@ -3,15 +3,13 @@ module.exports = mongoose => {
         "report",
         mongoose.Schema(
             {
-                title: String,
                 temperature: String,
-                pressure: String,
+                humidity: String,
             },
             {
                 timestamps: true,
             }
         )
     );
-  
     return Report;
 };

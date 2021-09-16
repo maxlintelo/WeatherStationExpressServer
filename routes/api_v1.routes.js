@@ -8,17 +8,16 @@ const Report = db.report;
 
 // Put a new reading in DB (POST /api/v1)
 apiv1.post('/', function(req, res) {
-    // Check if title is empty
-    if (!req.body.title) {
-        res.status(400).send({message: 'Content cannot be empty.'});
+    // Check if request temperature or humidity is empty
+    if (!req.body.temperature || !req.body.humidity) {
+        res.status(400).send({message: 'Supply temperature and humidity.'});
         return;
     }
     
     // Create report object
     const report = new Report({
-        title: req.body.title,
         temperature: req.body.temperature,
-        pressure: req.body.pressure
+        humidity: req.body.humidity
     });
 
     // Save object to DB
@@ -36,7 +35,14 @@ apiv1.get('/', function(req, res) {
     const title = req.query.title;
     var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
+    var limit = 0;
+    if (req.query.limit) {
+        limit = parseInt(req.query.limit);
+    }
+
     report.find(condition)
+    .sort({_id:-1})
+    .limit(limit)
     .then(data => {
         res.send(data);
     })
