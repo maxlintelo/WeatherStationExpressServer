@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./models");
+var helmet = require("helmet");
 
 const app = express();
 
@@ -8,6 +9,7 @@ var corsOptions = {
     origin: "htpp://localhost:8081",
 };
 
+app.use(helmet())
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({
@@ -36,7 +38,7 @@ app.get("/", (req, res) => {
 // Start server
 if (require.main === module) {
     console.log('Started as entrypoint...')
-    const PORT = process.env.PORT || 8080;
+    const PORT = process.env.PORT || 8081;
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}.`)
     });
