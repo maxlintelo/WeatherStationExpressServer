@@ -29,6 +29,7 @@ db.mongoose.connect(db.url, {
 
 // API Controllers
 app.use('/api/v1', require('./routes/api_v1.routes.js'));
+app.use('/api/v2', require('./routes/api_v2.routes.js'));
 
 // Simple router
 app.get("/", (req, res) => {

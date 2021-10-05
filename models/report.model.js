@@ -5,6 +5,7 @@ module.exports = mongoose => {
             {
                 temperature: String,
                 humidity: String,
+                pressure: String,
             },
             {
                 timestamps: true,

@@ -9,15 +9,16 @@ const Report = db.report;
 // Put a new reading in DB (POST /api/v1)
 apiv1.post('/', function(req, res) {
     // Check if request temperature or humidity is empty
-    if (!req.body.temperature || !req.body.humidity) {
-        res.status(400).send({message: 'Supply temperature and humidity.'});
+    if (!req.body.temperature || !req.body.humidity || !req.body.pressure) {
+        res.status(400).send({message: 'Supply temperature, humidity and pressure.'});
         return;
     }
     
     // Create report object
     const report = new Report({
         temperature: req.body.temperature,
-        humidity: req.body.humidity
+        humidity: req.body.humidity,
+        pressure: req.body.pressure,
     });
 
     // Save object to DB
