@@ -1,21 +1,24 @@
+// Initialize DotEnv ENV Variables
+require('dotenv').config();
+// Retrieve enviroment variables
+const URL = process.env.URL || "No URL in .env";
+const PORT = process.env.PORT || "8081";
+
+// Make express server
 const express = require("express");
-const cors = require("cors");
-const mongoose = require('mongoose');
 const app = express();
-const { URL } = require('./database')
+const cors = require("cors");
 
-var corsOptions = {
-    origin: "htpp://localhost:8081",
-};
+// Create DB Object
+const mongoose = require('mongoose');
 
-app.use(cors(corsOptions));
+// Configure Express Server
+app.use(cors({ origin: "htpp://localhost:8081" }));
 app.use(express.json());
-app.use(express.urlencoded({
-    extended: true,
-}));
+app.use(express.urlencoded({ extended: true }));
 
-// Connect to prodcution DB
-mongoose.connect(URL, {
+// Connect to DB
+mongoose.connect(process.env.URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
@@ -34,8 +37,5 @@ app.use('/api/mock', require('./routes/api_mock.routes'));
 // Entry point
 if (require.main === module) {
     console.log('Started as entrypoint...')
-    const PORT = process.env.PORT || 8081;
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}.`)
-    });
+    app.listen(PORT, () => { console.log(`Server running on port ${PORT}.`) });
 }

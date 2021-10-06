@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const URL = 'mongodb+srv://wsUser:mooiwachtwoord@weerstationtest.hveyn.mongodb.net/reportsDatabase';
 
 const reportSchema = new mongoose.Schema({
         temperature: String,
@@ -15,5 +14,5 @@ const Report = mongoose.model('reports', reportSchema);
 const MockReport = mongoose.model('mockReports', reportSchema);
 
 module.exports = {
-    Report, MockReport, URL
+    Report, MockReport
 }
