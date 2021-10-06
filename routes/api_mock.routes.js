@@ -1,9 +1,10 @@
 var express = require('express');
-var apiv2 = express.Router();
-const { Report } = require('../database');
+var apivmock = express.Router();
+const { MockReport } = require('../database');
+const logging = require('../logging');
 
 // Get all readings (GET /api/v1/)
-apiv2.get('/', function(req, res) {
+apivmock.get('/', function(req, res) {
     const title = req.query.title;
     var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
@@ -12,7 +13,7 @@ apiv2.get('/', function(req, res) {
         limit = parseInt(req.query.limit);
     }
 
-    Report.find(condition)
+    MockReport.find(condition)
     .sort({_id:-1})
     .limit(limit)
     .then(data => {
@@ -24,7 +25,7 @@ apiv2.get('/', function(req, res) {
 });
 
 // Get all readings (GET /api/v1/)
-apiv2.get('/post', function(req, res) {
+apivmock.get('/post', function(req, res) {
     // If new temp, humid, and pressure is submitted
     if (req.query.temperature && req.query.humidity && req.query.pressure) {
         // Create report object
@@ -33,10 +34,12 @@ apiv2.get('/post', function(req, res) {
             humidity: req.query.humidity,
             pressure: req.query.pressure,
         }]
+        logging.logDevelopmentRequest(reportData);
 
         // Save object to DB
-        Report.insertMany(reportData)
+        MockReport.insertMany(reportData)
         .then(data => {
+            logging.logDevelopmentResponse(data);
             res.send(data);
         })
         .catch(err => {
@@ -50,10 +53,10 @@ apiv2.get('/post', function(req, res) {
 });
 
 // Get reading by id (GET /api/v1/:id)
-apiv2.get('/:id', function(req, res) {
+apivmock.get('/:id', function(req, res) {
     const id = req.params.id;
 
-    Report.findById(id)
+    MockReport.findById(id)
     .then(data => {
         if (!data) {
             res.status(404).send({ message: "No report with id " + id + "."});
@@ -67,13 +70,13 @@ apiv2.get('/:id', function(req, res) {
 });
 
 // Update report by ID (PUT /api/v1/:id)
-apiv2.put('/:id', function(req, res) {
+apivmock.put('/:id', function(req, res) {
     if (!req.body) {
         return res.status(400).send({ message: "Data to update cannot be empty." });
     }
     const id = req.params.id;
     
-    Report.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    MockReport.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then(data => {
         if (!data) {
             res.status(404).send({ message: `Could not find a report with id ${id}.` });
@@ -86,4 +89,4 @@ apiv2.put('/:id', function(req, res) {
     });
 });
 
-module.exports = apiv2;
+module.exports = apivmock;

@@ -1,10 +1,6 @@
 var express = require('express');
-const { report } = require('../models');
 var apiv1 = express.Router();
-
-// Import DB and model
-const db = require('../models');
-const Report = db.report;
+const { Report } = require('../database');
 
 // Put a new reading in DB (POST /api/v1)
 apiv1.post('/', function(req, res) {
@@ -15,14 +11,14 @@ apiv1.post('/', function(req, res) {
     }
     
     // Create report object
-    const report = new Report({
-        temperature: req.body.temperature,
-        humidity: req.body.humidity,
-        pressure: req.body.pressure,
-    });
+    const reportData = [{
+        temperature: req.query.temperature,
+        humidity: req.query.humidity,
+        pressure: req.query.pressure,
+    }]
 
     // Save object to DB
-    report.save(report)
+    Report.insertMany(reportData)
     .then(data => {
         res.send(data);
     })
@@ -41,7 +37,7 @@ apiv1.get('/', function(req, res) {
         limit = parseInt(req.query.limit);
     }
 
-    report.find(condition)
+    Report.find(condition)
     .sort({_id:-1})
     .limit(limit)
     .then(data => {
@@ -56,7 +52,7 @@ apiv1.get('/', function(req, res) {
 apiv1.get('/:id', function(req, res) {
     const id = req.params.id;
 
-    report.findById(id)
+    Report.findById(id)
     .then(data => {
         if (!data) {
             res.status(404).send({ message: "No report with id " + id + "."});
@@ -76,17 +72,17 @@ apiv1.put('/:id', function(req, res) {
     }
     const id = req.params.id;
     
-    report.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
-        .then(data => {
-            if (!data) {
-                res.status(404).send({ message: `Could not find a report with id ${id}.` });
-            } else {
-                res.send({ message: "Report was updated successfully." });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({ message: "Unknown error updating report with id " + id + ". " + err });
-        });
+    Report.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    .then(data => {
+        if (!data) {
+            res.status(404).send({ message: `Could not find a report with id ${id}.` });
+        } else {
+            res.send({ message: "Report was updated successfully." });
+        }
+    })
+    .catch(err => {
+        res.status(500).send({ message: "Unknown error updating report with id " + id + ". " + err });
+    });
 });
 
 module.exports = apiv1;
