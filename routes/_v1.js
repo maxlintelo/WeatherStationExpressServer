@@ -1,9 +1,34 @@
 var express = require('express');
-var apiv2 = express.Router();
-const { Report } = require('../database');
+var apiv1 = express.Router();
+const { Report } = require('../utils/database');
+
+// Put a new reading in DB (POST /api/v1)
+apiv1.post('/', function(req, res) {
+    // Check if request temperature or humidity is empty
+    if (!req.body.temperature || !req.body.humidity || !req.body.pressure) {
+        res.status(400).send({message: 'Supply temperature, humidity and pressure.'});
+        return;
+    }
+    
+    // Create report object
+    const reportData = [{
+        temperature: req.query.temperature,
+        humidity: req.query.humidity,
+        pressure: req.query.pressure,
+    }]
+
+    // Save object to DB
+    Report.insertMany(reportData)
+    .then(data => {
+        res.send(data);
+    })
+    .catch(err => {
+        res.status(500).send({ message: "An error occured while saving the report to the database. " + err });
+    });
+});
 
 // Get all readings (GET /api/v1/)
-apiv2.get('/', function(req, res) {
+apiv1.get('/', function(req, res) {
     const title = req.query.title;
     var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
@@ -23,34 +48,8 @@ apiv2.get('/', function(req, res) {
     });
 });
 
-// Get all readings (GET /api/v1/)
-apiv2.get('/post', function(req, res) {
-    // If new temp, humid, and pressure is submitted
-    if (req.query.temperature && req.query.humidity && req.query.pressure) {
-        // Create report object
-        const reportData = [{
-            temperature: req.query.temperature,
-            humidity: req.query.humidity,
-            pressure: req.query.pressure,
-        }]
-
-        // Save object to DB
-        Report.insertMany(reportData)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({ message: "An error occured while saving the report to the database. " + err });
-        });
-    }
-    // Else data needs to be retrieved
-    else {
-        res.status(400).send("Provide a temperature, humidity and pressure.");
-    }
-});
-
 // Get reading by id (GET /api/v1/:id)
-apiv2.get('/:id', function(req, res) {
+apiv1.get('/:id', function(req, res) {
     const id = req.params.id;
 
     Report.findById(id)
@@ -67,7 +66,7 @@ apiv2.get('/:id', function(req, res) {
 });
 
 // Update report by ID (PUT /api/v1/:id)
-apiv2.put('/:id', function(req, res) {
+apiv1.put('/:id', function(req, res) {
     if (!req.body) {
         return res.status(400).send({ message: "Data to update cannot be empty." });
     }
@@ -86,4 +85,4 @@ apiv2.put('/:id', function(req, res) {
     });
 });
 
-module.exports = apiv2;
+module.exports = apiv1;
