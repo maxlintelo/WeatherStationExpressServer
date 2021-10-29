@@ -26,6 +26,7 @@ apiv3.get('/post', function(req, res) {
         res.status(400).send("Provide a temperature, humidity, and pressure.");
         return;
     }
+    console.log('New request. Temperature: ' + temperature + ', Humidity: ' + humidity + ", Pressure: " + pressure + ".");
 
     // Check for valid values
     if (temperature < TEMP_LOW_BOUND || temperature > TEMP_HIGH_BOUND) {
@@ -53,7 +54,7 @@ apiv3.get('/post', function(req, res) {
     // Save object to DB
     Report.insertMany(reportData)
     .then(data => {
-        res.send(data);
+        res.status(201).send(data);
     })
     .catch(err => {
         res.status(500).send({ message: "An error occured while saving the report to the database. " + err });
