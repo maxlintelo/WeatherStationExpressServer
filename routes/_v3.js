@@ -3,6 +3,7 @@ var apiv3 = express.Router();
 const { Report } = require('../utils/database');
 const postWundermap = require('../utils/wundermap');
 
+// Get all limit variables from .ENV file
 const TEMP_HIGH_BOUND = parseInt(process.env.TEMP_HIGH_BOUND || 50);
 const TEMP_LOW_BOUND = parseInt(process.env.TEMP_LOW_BOUND || -50);
 const HUMI_HIGH_BOUND = parseInt(process.env.HUMI_HIGH_BOUND || 100);
@@ -42,6 +43,7 @@ apiv3.get('/post', function(req, res) {
         return;
     }
 
+    // Post the values to wundermap
     postWundermap(temperature, humidity, pressure);
 
     // Create a report object
@@ -70,15 +72,19 @@ apiv3.get('/post', function(req, res) {
  * - none
  */
 apiv3.get('/', function(req, res) {
+    // Check if there is a regex expression or limit query
     var { title, limit } = req.query;
+    // Set querys if found
     limit = limit ? parseInt(limit) : 0;
     var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
-    if (isNaN(limit)) {
-        res.status(500).send({ message: "An error occurred while retrieving reports. Limit should be a integer." });
+    // Check if limit is valid and >= 0
+    if (isNaN(limit) || limit < 0) {
+        res.status(500).send({ message: "An error occurred while retrieving reports. Limit should be a integer bigger or equals 0." });
         return;
     }
 
+    // Find reports with given queries
     Report.find(condition)
     .sort({_id:-1})
     .limit(limit)
@@ -98,11 +104,13 @@ apiv3.get('/', function(req, res) {
  * - id (int)
  */
 apiv3.get('/:id', function(req, res) {
+    // Check if ID param is specified
     const { id } = req.params;
     if (!id) {
         res.status(400).send("Provide an id to search for.");
     }
 
+    // Find report with ID
     Report.findById(id)
     .then(data => {
         if (!data) {
