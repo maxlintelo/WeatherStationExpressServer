@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
-        temperature: String,
-        humidity: String,
-        pressure: String
+        temperature: Number,
+        humidity: Number,
+        pressure: Number
     },
     { timestamps: true }
 );
